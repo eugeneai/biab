@@ -1,0 +1,10 @@
+#!/bin/sh
+#
+# The biab `program'.
+
+@PYTHON@ -OO -c "
+import sys
+from biab import main
+main.biab().run(['$0'] + sys.argv[1:])
+" \
+"$@"

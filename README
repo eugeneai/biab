@@ -1,0 +1,232 @@
+Bison in a Box!
+
+Bison in a Box (biab) is a LALR(1) parser generator for Python that
+uses bison to generate its parsing tables.  It..
+
+* Generates parsers in Python that have a pleasant object-oriented
+  interface and incorporate your Python semantic actions.
+
+* Is designed to be fairly easy to retarget to other languages.
+
+* Has usage similar to that of bison and yacc.
+
+* Has pretty good performance already (with plenty of opportunities
+  for improvment).
+
+biab is written by Eric Tiedemann <est@hyperreal.org> and is released
+under the GPL (see COPYING).
+
+
+VERSION
+
+This is version 0.1.0.  Visit http://www.hyperreal.org/~est/biab/ for
+the latest version.
+
+
+REQUIREMENTS
+
+python 2.x+
+bison (version 1.28 is known to work; others may as well)
+
+
+FEATURES
+
+* The ease and comfort of Python.
+
+* The parsers' object-oriented interface trivially supports multiple
+  parser instances.
+
+* The default semantic action for grammar rules is to automatically
+  build a simple abstract syntax tree.  You can specify ast elision
+  rules in your grammar to make this tree more easily usable.
+
+* biab parsers can function in `push' mode.  You can feed them one or
+  several input tokens at a time and your actions are executed as
+  grammar elements are recognized.  This makes it more suitable for
+  interactive uses.
+
+* biab is meta-circular; it can and does generate the parser for its
+  own input files.
+
+
+INSTALLATION
+
+ ./configure
+ make install
+
+
+USAGE
+
+Familiarity with yacc/bison is assumed here.  This tool is fun enough,
+however, that a no-assumptions tutorial might be worthwhile.
+
+  biab foo.bb
+
+If all goes well, this generates foo.py which defines a single class
+named `parser'.  This parser class has the following interface:
+
+ parse_token(<token>)     -- send a single token to the parser
+ parse_tokens(<token>+)   -- send multiple tokens to the parser
+ parse_eof()              -- send the end-of-file token to the parser
+ acceptp()                -- returns true if the parser has accepted
+ errorp()                 -- returns true if the parser encountered an error
+
+Once the parser has reached an accept or error state, sending it more
+tokens has no effect.
+
+The input tokens are expected to have the same interface as
+biab.token.token.  This is a simple concrete class initialized with
+token(type, value, line, col), where TYPE is a string representing the
+lexical class of the token, VALUE is a string with the actual value of
+the token, and LINE and COL are the line and column the token appeared at
+in the input.
+
+The default yyerror() method writes a message to standard error.  If
+you derive from the generated parser, you may wish to override this.
+The interface is yyerror(msg, line, tok=None), where MSG is the error
+message from the parser, LINE the input line it occured at, and TOK
+the lookahead token (if any).  The yyexpecting(limit=5) method can be
+handy when writing yyerror() methods.  It returns a string describing
+the lookahead tokens that were expected at that point in the parse; it
+returns an empty string if these aren't known or if there are LIMIT or
+more of them.
+
+
+THE GRAMMAR FILE
+
+The grammar file format is similar to bison's.  Major differences are:
+
+* Octothorpes (#s) are used to comment out lines.
+
+* All included code is delimited by surrounding brackets.
+
+* Semi-colon's are required at the end of rules (thus making the
+  meta-grammar LALR(1)).
+
+Included code in the declaration section is put at the beginning of
+the generated file.  Code in the grammar section is put in the
+__init__ method of the generated parser class.  Code after the grammar
+section is put at the end of the generated file.
+
+Actions can refer to the components of the right-hand-side of their
+rule via yy[0], yy[1], etc..up to yy[<length of right-hand-side> - 1].
+Actions can return a value by simply returning it; otherwhise, they
+return None.  *Evil* people who want to look at tokens to the left of
+the right-hand-side being reduced can access the full value stack as
+self.yyvals.
+
+An attempt is made to do-the-right-thing when it comes to the
+indenting of init and action code as it's included in the generated
+file.
+
+
+ABSTRACT SYNTAX TREES
+
+The default action is the create an abstract syntax tree (ast) for the
+right-hand-side of a rule.  The very simple concrete class used for
+this is biab.ast.ast.  It's initialized with a string `type' and a
+list of `kids'.  These can be accessed as attributes of the same name.
+The ast objects that are created by default for a rule use the rule's
+non-terminal as their type and the right-hand-side elements as their
+kids.
+
+You can use elision declarations in the grammar file's declaration
+section to compact the automatically generated abstract syntax trees.
+These declarations are an experimental but very useful feature of
+biab.  They may evolve as the right set of declarations is discovered.
+
+%elide <tokens>
+
+Terminals or non-terminals declared elidable are omitted from asts.
+The classic example of elidable tokens are parentheses used for
+expression grouping.  You want the grouping, but don't need to see the
+parentheses.  Elidables also behave like collapsables (see below) at
+the moment, though this may change as the elision rules develop more
+coherence.
+
+%collapse <non-terminals>
+
+Non-terminals declared collapsable are represented in the ast by their
+single kid if they have only one kid.
+
+%phantom <non-terminals>
+
+Non-terminals declared phantoms turn into their kids (however many)
+when incorporated as the single kid of an ast.  This eliminates
+annoying unit productions while preserving the phantom token in more
+complex contexts.
+
+%flatten <non-terminals>
+
+This is suitable for non-terminals that are used to build lists of
+syntactic elements.  Instead of many nested nodes for these
+non-terminals, you'll get a single node with all of the elements in
+the list as its kids.
+
+test/desk1.py and test/meta.bb have, between them, examples of the use
+of all of these.
+
+Note that it's often useful to use a mix of automatic abstract syntax
+tree generation and user defined actions in your grammars.
+
+
+EXAMPLES
+
+The test directory has some examples of grammar files.  desk.bb is a
+simple desk calculator.  It even has variables and error handling..
+try it out!  desk1.bb is similar but displays the abstract syntax
+trees for its input lines instead of their values.  Both of these
+translate into complete executable Python scripts since they include
+self-test code in their postlogs.  meta.bb is biab's meta-grammar.
+ANSI-C-grammar.bb is a grammar for ANSI C.  It's mainly useful as a
+test of the performance of biab's meta-grammar parser (which is *a*
+measure of the performance of the generated parsers in general).
+
+
+OPTIONS
+
+--no-clean  causes the intermediate .y and .tab.c files to not be 
+   removed.
+
+--diagnose  causes a bison .output file for the grammar to be created
+   for grammar debugging purposes.
+
+
+LIMITATIONS
+
+None of these looks very difficult to eliminate.  Some of them should
+probably wait to be driven by actual use of biab.
+
+* No validation is done on the input grammars before they get to
+  bison.  There's a stub for doing this in biab.py with comments
+  outlining useful validation.
+
+* Mid-rule semantic actions aren't allowed.
+
+* bison/yacc-style error-recovery isn't implemented.  This should
+  be farily easy to translate into the driver architecture as use
+  requires.
+
+* The %prec directive isn't supported.
+
+
+FUTURE POSSIBILITIES
+
+* EBNF grammars.
+
+* General string tokens (e.g., "+=").
+
+* Dropping bison and doing table computation in Python.
+
+* Integration of lexical analysis.
+
+
+HACKING
+
+If you do a make in the "biab" subdirectory and set
+"export PYTHONPATH=`pwd`", you can then use "sh ./biab.sh" to run 
+biab in situ.  You'll probably want to remove the -OO from biab.sh.
+In the "biab" subdirectory you can replace parse.py with 
+parse-debug.py to get debugging code for the parser driver.  Both 
+those files are generated by the make from parse.py.in (via 
+tools/ppp.py :)

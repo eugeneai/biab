@@ -1,0 +1,64 @@
+VERSION = @VERSION@
+
+PYTHON = @PYTHON@
+INSTALL = @INSTALL@
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_SCRIPT = @INSTALL_SCRIPT@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = @bindir@
+
+all:
+	cd biab; make
+
+install: all
+	$(PYTHON) setup.py install --optimize=2
+	$(INSTALL_SCRIPT) biab.sh $(bindir)/biab
+	$(INSTALL_DATA) -D README $(prefix)/doc/biab-$(VERSION)/README
+
+clean:
+	$(PYTHON) setup.py clean
+	rm -rf build
+	cd biab; make clean
+	cd test; make clean
+	rm -f *~
+
+distclean: clean
+	rm -f config.cache config.log config.h config.status Makefile
+	rm -f setup.py
+        
+maintainer-clean: distclean
+	rm -f configure aclocal.m4
+	rm -f libtool ltmain.sh config.guess config.sub ltconfig
+
+DISTDIRS = biab test tools
+
+DISTFILES = COPYING ChangeLog README \
+	configure Makefile.in biab.sh.in setup.py.in \
+	acinclude.m4 autobuild.sh configure.in \
+	aclocal.m4 config.guess config.sub install-sh \
+	libtool ltconfig ltmain.sh
+
+
+SNAPNAME = biab-$(shell date +%y%m%d-%H%M)
+DISTNAME = biab-$(VERSION)
+
+dist: distclean
+	rm -rf $(DISTNAME)
+	mkdir $(DISTNAME)
+	cp -r $(DISTFILES) $(DISTDIRS) $(DISTNAME)
+	tar cf $(DISTNAME).tar $(DISTNAME)
+	gzip $(DISTNAME).tar
+	rm -rf $(DISTNAME)
+
+snap:
+	rm -rf $(SNAPNAME)
+	mkdir $(SNAPNAME)
+	cp -r $(DISTFILES) $(DISTDIRS) $(SNAPNAME)
+	tar cf $(SNAPNAME).tar $(SNAPNAME)
+	gzip $(SNAPNAME).tar
+	rm -rf $(SNAPNAME)
+
+upload: snap
+	scp $(SNAPNAME).tar.gz est@taz3.hyperreal.org:$(SNAPNAME).tar.gz
