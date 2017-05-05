@@ -1,6 +1,8 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(configure.in)
+AC_CONFIG_MACRO_DIRS([m4])
+
+AC_INIT(configure.ac)
 AC_CANONICAL_HOST
 
 AM_PROG_LIBTOOL
