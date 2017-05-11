@@ -7,4 +7,4 @@ all:
 	$(BIAB) meta.bb
 
 clean:
-	rm -f *.py *.tab.c *.y *.output *~
+	#rm -f *.py *.tab.c *.y *.output *~

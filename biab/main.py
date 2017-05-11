@@ -252,8 +252,9 @@ class biab(program):
             bison = 'bison -v'
         else:
             bison = 'bison'
-
-        if os.system(bison + ' ' + yfile) != 0:
+        CMD = bison + ' ' + yfile
+        # print("Issuing:", CMD)
+        if os.system(CMD) != 0:
             self.die("Problem running bison on `%s'!\n" % (yfile,))
 
         if not self.NO_CLEAN:

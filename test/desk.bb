@@ -13,55 +13,56 @@ class DeskError:
 }
 
 %%
-        main:
-				# empty	    
-            | main expr '\n'    { print("%g" % (yy[1],)) }
-            | main IDENTIFIER '=' expr '\n'
-	      { vars[yy[1].value] = yy[3] }
-            | main '\n'
+    main:
+          # empty
+        | main expr '\n'    { print("%g" % (yy[1],)) }
+        | main IDENTIFIER '=' expr '\n'
+          { vars[yy[1].value] = yy[3] }
+        | main '\n'
         ;
 
-        expr:
-            expr '+' expr       { return yy[0] + yy[2] }
-          | expr '-' expr       { return yy[0] - yy[2] }
-          | expr '*' expr       { return yy[0] * yy[2] }
-          | expr '/' expr       
-            { 
-              try: return yy[0] / yy[2]
-              except ZeroDivisionError:
+    expr:
+          expr '+' expr       { return yy[0] + yy[2] }
+        | expr '-' expr       { return yy[0] - yy[2] }
+        | expr '*' expr       { return yy[0] * yy[2] }
+        | expr '/' expr
+            {
+            try:
+               return yy[0] / yy[2]
+            except ZeroDivisionError:
                print("error: division by zero")
                raise DeskError
             }
-	  | primary             { return yy[0] }
+	    | primary { return yy[0] }
         ;
 
 	primary:
-            NUMBER              { return float(yy[0].value) }
-          | '-' expr		{ return -yy[1] }
-          | '(' expr ')'	{ return yy[1] }
-          | IDENTIFIER
-            { 
-              if vars.has_key(yy[0].value): 
+          NUMBER              { return float(yy[0].value) }
+        | '-' expr { return -yy[1] }
+        | '(' expr ')'	{ return yy[1] }
+        | IDENTIFIER
+            {
+            if vars.has_key(yy[0].value):
                 return vars[yy[0].value]
-              else: 
+            else:
                 print("error: unbound variable `%s'" % (yy[0].value,))
                 raise DeskError
             }
-	;
+        ;
 
 {
-import re, string, sys
+import re, sys
 from biab import lex, token
 
 class lexer(lex.luthor):
     CHAROPS = "+-*/()="
     NEWLINEP = 1
-    
+
     PATTERNS = {
         'NUMBER' : lex.luthor.NUMBER,
         'IDENTIFIER' : lex.luthor.IDENTIFIER,
         }
-        
+
     def __init__(self, cb, infile="<unknown>"):
         lex.luthor.__init__(self, cb, infile)
 

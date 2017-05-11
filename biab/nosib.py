@@ -17,7 +17,9 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import sys, os, re, string
+import sys
+import os
+import re
 
 # typical entities of interest
 # (some of these require the %token-table directive in bison 1.28)
@@ -29,12 +31,13 @@ TABLES = ('yyprhs', 'yyrhs', 'yyrline', 'yytname', 'yytoknum',
           'yypact', 'yypgoto', 'yytable', 'yycheck')
 
 # very bison-specific patterns (derived from version 1.28)
-TABLE_RE = re.compile(r'^.*?([a-zA-Z0-9_]+)\[\] \= \{(.*\n)')
+TABLE_RE = re.compile(
+    r'^static const [a-zA-Z_]+ ([a-zA-Z0-9_]+)\[\] \= \{(.*\n)')
 TABLE_END_RE = re.compile(r'^\}\;')
 DEFINE_RE = re.compile(r'^\#define\s+([a-zA-Z0-9_]+)\s+(\-?\d+)')
 
-def read_tab(f, ds, ts):
 
+def read_tab(f, ds, ts):
     '''
     read_tab(f, ds, ts) Read a yacc/bison .tab.c file from file F
     and return two dicts of defines and tables.  The dicts are indexed
@@ -58,13 +61,14 @@ def read_tab(f, ds, ts):
 
         m = TABLE_RE.match(l)
         if m:
+            print("Matched beg:", m)
             name = m.group(1)
             if name in tables:
                 out = '[' + m.group(2)
                 while 1:
                     l = f.readline()
                     if not l or TABLE_END_RE.match(l):
-                        out = string.replace(out, 'NULL', 'None')
+                        out = out.replace('NULL', 'None')
                         tables[name] = out + '    ]\n'
                         break
                     else:
@@ -72,21 +76,23 @@ def read_tab(f, ds, ts):
 
         m = DEFINE_RE.match(l)
         if m:
+            print("Matched end:", m)
             name = m.group(1)
             if name in defines:
                 defines[name] = m.group(2)
 
     return defines, tables
 
+
 if __name__ == '__main__':
     import sys
 
     d, t = read_tab(sys.stdin, DEFINES, TABLES)
-    
+
     for i in t.items():
         print("%s = %s" % i)
 
     for i in d.items():
         print("%s = %s" % i)
 
-    sys.exit(0);
+    sys.exit(0)
