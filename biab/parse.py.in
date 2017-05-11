@@ -18,8 +18,8 @@
 #
 
 import sys as _sys
-import token as _token
-import ast as _ast
+from . import token as _token
+from . import ast as _ast
 
 class Parser:
     YYEOF = _token.token('$')
@@ -47,7 +47,7 @@ class Parser:
        
         # generate lexeme to token number map
         self.yylexeme = {}
-        for i in xrange(len(self.yytname)):
+        for i in range(len(self.yytname)):
             self.yylexeme[self.yytname[i]] = i
 
         # the initial parse routine to execute
@@ -73,7 +73,7 @@ class Parser:
       if yyn > self.YYFLAG and yyn < self.YYLAST:
 	  count = 0
           # Start X at -yyn if nec to avoid negative indexes in yycheck.
-          r = range((yyn < 0 and -yyn or 0), self.YYNTOKENS - self.YYNNTS)
+          r = list(range((yyn < 0 and -yyn or 0), self.YYNTOKENS - self.YYNNTS))
           for x in r:
               if self.yycheck[x + yyn] == x:
                   count += 1
@@ -253,10 +253,10 @@ class Parser:
                 kids = []
             else:
                 kids = self.yyvals[-yylen:]
-            kids = filter(lambda k, self=self: \
+            kids = list(filter(lambda k, self=self: \
                           (not hasattr(k, 'type')
                            or k.type not in self.yyelidables),
-                          kids)
+                          kids))
 
             if len(kids) == 1 \
                and hasattr(kids[0], 'type') \

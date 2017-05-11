@@ -1,10 +1,10 @@
 AC_DEFUN([AC_PYTHON_REQUIRE],
   [AC_MSG_CHECKING([for python >= $1])
    if test ! "$PYTHON"; then AC_ERROR([no python found!]); fi
-[PYTHON_VERSION=`$PYTHON -c "
+[PYTHON_VERSION=`$PYTHON -c "from __future__ import print_function
 import sys
-print sys.version[:3]"`
-PYTHON_VERSION_GE=`$PYTHON -c "
+print (sys.version[:3])"`
+PYTHON_VERSION_GE=`$PYTHON -c "from __future__ import print_function
 import sys
 print (sys.version[:3] >= '$1')"`]
 if test "$PYTHON_VERSION_GE" = '0'

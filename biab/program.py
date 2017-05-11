@@ -26,9 +26,9 @@
 # handle rc/environment/option values
 
 import sys as _sys
-import scanopt as _scanopt
+from . import scanopt as _scanopt
 import profile as _profile
-import prof as _prof
+from . import prof as _prof
 
 class _myprofile(_profile.Profile):
     """
@@ -72,7 +72,7 @@ class program:
         self.stderr.flush()
 
     def exit(self, rc):
-        raise _Exit, rc
+        raise _Exit(rc)
 
     def die(self, msg):
         self.stderr.write(msg)
@@ -83,7 +83,7 @@ class program:
     def open(self, file, mode='r'):
         try:
             return open(file, mode)
-        except IOError, e:
+        except IOError as e:
             self.die("Problem %s `%s': %s\n" \
                      % ((mode == 'r' and 'reading' or 'writing'),
                         file, e))
@@ -132,7 +132,7 @@ class program:
                 p.func_report()
             else:
                 rc[0] = self.main(args)
-        except _Exit, e:
+        except _Exit as e:
             rc[0] = int(e)
 
         if rc[0] == None:
@@ -147,7 +147,7 @@ if __name__ == '__main__':
             self.name = 'myprog'
 
         def main(self, args):
-            print args
+            print(args)
             return 23
         
     p = myprog()

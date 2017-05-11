@@ -17,13 +17,13 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import sys, string, os, commands, re, types, getopt
+import sys, string, os, subprocess, re, types, getopt
 
-import nosib, lex, meta
+from . import nosib, lex, meta
 
-from token import token
+from .token import token
 
-from program import *
+from .program import *
 
 class biab_lexer(lex.luthor):
     PATTERNS = {
@@ -274,7 +274,7 @@ class parser(biab.parse.Parser):
         pyf.write(indent(p.init, 4))
 
         pyf.write("\n    self.yyactions = {\n")
-        ks = self.actions.keys()
+        ks = list(self.actions.keys())
         ks.sort()
         for k in ks:
             pyf.write("      %d : self.yyact%d,\n" % (k, k))
@@ -290,14 +290,14 @@ class parser(biab.parse.Parser):
             pyf.write("\n")
 
         def valify(l):
-            return map(lambda v: v.value, l)
+            return [v.value for v in l]
         
         pyf.write("  yyelidables = %s\n\n" % (valify(self.elidables),))
         pyf.write("  yycollapsables = %s\n\n" % (valify(self.collapsables,)))
         pyf.write("  yyflattenables = %s\n\n" % (valify(self.flattenables,)))
         pyf.write("  yyphantoms = %s\n\n" % (valify(self.phantoms,)))
         
-        ks = self.actions.keys()
+        ks = list(self.actions.keys())
         ks.sort()
         for k in ks:
             pyf.write("  def yyact%d(self, yy):\n    %s\n\n"
@@ -311,7 +311,7 @@ class parser(biab.parse.Parser):
         # end main()
 
     def check_bison_version(self, recommended):
-        status, output = commands.getstatusoutput('bison --version')
+        status, output = subprocess.getstatusoutput('bison --version')
         if status != 0:
             self.die("Problem running bison!  I quit!\n")
         m = re.compile(r'\s+(\S+)\D*$').search(output)

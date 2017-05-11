@@ -110,7 +110,7 @@ if __name__ == '__main__':
     import sys
     
     def foo(l, v, line, col):
-        print l, v
+        print(l, v)
         
     lex = luthor(foo)
 

@@ -11912,10 +11912,10 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for python >= 2.0" >&5
 $as_echo_n "checking for python >= 2.0... " >&6; }
    if test ! "$PYTHON"; then as_fn_error $? "no python found!" "$LINENO" 5; fi
-PYTHON_VERSION=`$PYTHON -c "
+PYTHON_VERSION=`$PYTHON -c "from __future__ import print_function
 import sys
-print sys.version[:3]"`
-PYTHON_VERSION_GE=`$PYTHON -c "
+print (sys.version[:3])"`
+PYTHON_VERSION_GE=`$PYTHON -c "from __future__ import print_function
 import sys
 print (sys.version[:3] >= '2.0')"`
 if test "$PYTHON_VERSION_GE" = '0'

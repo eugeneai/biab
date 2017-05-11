@@ -59,7 +59,7 @@ def read_tab(f, ds, ts):
         m = TABLE_RE.match(l)
         if m:
             name = m.group(1)
-            if tables.has_key(name):
+            if name in tables:
                 out = '[' + m.group(2)
                 while 1:
                     l = f.readline()
@@ -73,7 +73,7 @@ def read_tab(f, ds, ts):
         m = DEFINE_RE.match(l)
         if m:
             name = m.group(1)
-            if defines.has_key(name):
+            if name in defines:
                 defines[name] = m.group(2)
 
     return defines, tables
@@ -84,9 +84,9 @@ if __name__ == '__main__':
     d, t = read_tab(sys.stdin, DEFINES, TABLES)
     
     for i in t.items():
-        print "%s = %s" % i
+        print("%s = %s" % i)
 
     for i in d.items():
-        print "%s = %s" % i
+        print("%s = %s" % i)
 
     sys.exit(0);

@@ -96,7 +96,7 @@ class prof:
     else: return 1
 
   def line_report(self, n=20):
-    print self.line_report_str()
+    print(self.line_report_str())
 
   def line_report_str(self, n=20):
     self.__init_stats()
@@ -114,7 +114,7 @@ class prof:
     return s
 
   def func_report(self, n=20):
-    print self.func_report_str()
+    print(self.func_report_str())
 
   def func_report_str(self, n=20):
     self.__init_stats()
