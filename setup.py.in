@@ -2,12 +2,16 @@
 
 from setuptools import setup
 
-setup (name = "biab",
-       version = "@VERSION@",
-       description = "Bison in a Box support",
-       author = "Eric S. Tiedemann",
-       author_email = "est@hyperreal.org",
-       url = "http://www.hyperreal.org/~est/biab/",
+setup(name="biab",
+      version="@VERSION@",
+      description="Bison in a Box support",
+      author="Eric S. Tiedemann",
+      author_email="est@hyperreal.org",
+      url="http://www.hyperreal.org/~est/biab/",
 
-       packages = ['biab'],
+      packages=['biab'],
+      entry_points={
+           'console_scripts':
+           ['biab=biab:main']
+      },
       )

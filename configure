@@ -11984,7 +11984,7 @@ then { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: biab is only known to wor
 $as_echo "$as_me: WARNING: biab is only known to work with bison $BIAB_BISON_VERSION, which $BISON is not" >&2;}
 fi
 
-ac_config_files="$ac_config_files Makefile setup.py biab.sh"
+ac_config_files="$ac_config_files Makefile setup.py biab.sh biab/parse.py"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -13015,6 +13015,7 @@ do
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "setup.py") CONFIG_FILES="$CONFIG_FILES setup.py" ;;
     "biab.sh") CONFIG_FILES="$CONFIG_FILES biab.sh" ;;
+    "biab/parse.py") CONFIG_FILES="$CONFIG_FILES biab/parse.py" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac

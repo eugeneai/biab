@@ -28,4 +28,4 @@ if test "$BISON_VERSION" != "$BIAB_BISON_VERSION"
 then AC_MSG_WARN([biab is only known to work with bison $BIAB_BISON_VERSION, which $BISON is not])
 fi
 
-AC_OUTPUT(Makefile setup.py biab.sh)
+AC_OUTPUT(Makefile setup.py biab.sh biab/parse.py)

@@ -12,7 +12,7 @@
 %%
         main:
 				# empty	    
-            | main stmt '\n'    { print yy[1] }
+            | main stmt '\n'    { print(yy[1]) }
             | main '\n'
         ;
 

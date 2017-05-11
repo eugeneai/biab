@@ -109,3 +109,4 @@ Makefile
 /config.status
 /setup.py
 /m4
+test/*.py

@@ -15,7 +15,7 @@ class DeskError:
 %%
         main:
 				# empty	    
-            | main expr '\n'    { print "%g" % (yy[1],) }
+            | main expr '\n'    { print("%g" % (yy[1],)) }
             | main IDENTIFIER '=' expr '\n'
 	      { vars[yy[1].value] = yy[3] }
             | main '\n'
@@ -29,7 +29,7 @@ class DeskError:
             { 
               try: return yy[0] / yy[2]
               except ZeroDivisionError:
-               print "error: division by zero"
+               print("error: division by zero")
                raise DeskError
             }
 	  | primary             { return yy[0] }
@@ -44,7 +44,7 @@ class DeskError:
               if vars.has_key(yy[0].value): 
                 return vars[yy[0].value]
               else: 
-                print "error: unbound variable `%s'" % (yy[0].value,)
+                print("error: unbound variable `%s'" % (yy[0].value,))
                 raise DeskError
             }
 	;

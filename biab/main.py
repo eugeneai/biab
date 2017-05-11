@@ -17,7 +17,12 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import sys, string, os, subprocess, re, types, getopt
+import sys
+import os
+import subprocess
+import re
+import types
+import getopt
 
 from . import nosib, lex, meta
 
@@ -25,30 +30,31 @@ from .token import token
 
 from .program import *
 
+
 class biab_lexer(lex.luthor):
     PATTERNS = {
-        'IDENTIFIER' : lex.luthor.IDENTIFIER,
-        'COLON' : re.compile(r'\:'),
-        'CHAR' : re.compile(r"^\'\\?.\'"),
-        'SEMI' : re.compile(r'\;'),
-        'BAR' : re.compile(r'\|'),
-        'TOKEN' : re.compile(r'\%token'),
-        'LEFT' : re.compile(r'\%left'),
-        'RIGHT' : re.compile(r'\%right'),
-        'NONASSOC' : re.compile(r'\%nonassoc'),
-        'ELIDE' : re.compile(r'\%elide'),
-        'COLLAPSE' : re.compile(r'\%collapse'),
-        'FLATTEN' : re.compile(r'\%flatten'),
-        'PHANTOM' : re.compile(r'\%phantom'),
-        'START' : re.compile(r'\%start'),
-        'YACCSEP' : re.compile(r'^%%'),
-        }
+        'IDENTIFIER': lex.luthor.IDENTIFIER,
+        'COLON': re.compile(r'\:'),
+        'CHAR': re.compile(r"^\'\\?.\'"),
+        'SEMI': re.compile(r'\;'),
+        'BAR': re.compile(r'\|'),
+        'TOKEN': re.compile(r'\%token'),
+        'LEFT': re.compile(r'\%left'),
+        'RIGHT': re.compile(r'\%right'),
+        'NONASSOC': re.compile(r'\%nonassoc'),
+        'ELIDE': re.compile(r'\%elide'),
+        'COLLAPSE': re.compile(r'\%collapse'),
+        'FLATTEN': re.compile(r'\%flatten'),
+        'PHANTOM': re.compile(r'\%phantom'),
+        'START': re.compile(r'\%start'),
+        'YACCSEP': re.compile(r'^%%'),
+    }
 
     def __init__(self, cb, infile="<unknown>"):
         lex.luthor.__init__(self, cb, infile)
         self.codelevel = 0
         self.code = ''
-        
+
     def lexchunk(self, l):
         if self.codelevel:
             # machinery for our naive brace balancing
@@ -71,7 +77,7 @@ class biab_lexer(lex.luthor):
                 self.code = ''
 
             return l
-        elif  l[0] == '{':
+        elif l[0] == '{':
             self.flush_cruft()
             self.codeline = self.line
             self.codecol = self.col
@@ -83,7 +89,8 @@ class biab_lexer(lex.luthor):
             return l[1:]
         else:
             return lex.luthor.lexchunk(self, l)
-		                    
+
+
 def stringtuple2text(ss):
     if not ss:
         return ''
@@ -91,6 +98,7 @@ def stringtuple2text(ss):
     for s in ss[1:]:
         t += ', ' + s
     return t
+
 
 def validate_grammar(dex, productions):
     # XXX
@@ -104,14 +112,16 @@ def validate_grammar(dex, productions):
 
     return 1
 
+
 def indent(s, n):
     i = n * ' '
     s = i + s
     f = s[-1] == "\n"
-    s = string.replace(s, "\n", "\n" + i)
+    s = s.replace("\n", "\n" + i)
     if f:
         s = s[:-n]
     return s
+
 
 class biab(program):
     USAGE = "Usage: biab <file>.bb\n"
@@ -120,29 +130,32 @@ class biab(program):
         program.__init__(self)
         self.NO_CLEAN = 0
         self.DIAGNOSE = 0
-        
+
     def main(self, args):
         opts, args = getopt.getopt(args, "", [
             'no-clean',
             'diagnose',
-            ])
+        ])
 
         for opt, val in opts:
-            if opt == '--no-clean': self.NO_CLEAN = 1
-            elif opt == '--diagnose': self.DIAGNOSE = 1
-            else: self.die(self.USAGE)
-            
+            if opt == '--no-clean':
+                self.NO_CLEAN = 1
+            elif opt == '--diagnose':
+                self.DIAGNOSE = 1
+            else:
+                self.die(self.USAGE)
+
         # get <prefix>.bb file
         if len(args) != 1:
             self.die(self.USAGE)
 
         self.check_bison_version(('1.28',))
-        
+
         infile = args[0]
 
-        if string.rfind(infile, '.bb') != len(infile) - 3:
+        if infile.rfind('.bb') != len(infile) - 3:
             self.die(self.USAGE)
-    
+
         prefix = infile[:-3]
 
         f = self.open(infile)
@@ -159,22 +172,23 @@ class biab(program):
 
         while 1:
             l = f.readline()
-            if not l: break
+            if not l:
+                break
             luthor.lexline(l)
-    
+
         p.parse_eof()
 
         if p.errorp():
             self.exit(1)
-    
+
         if not validate_grammar(p.dex, p.productions):
             self.exit(1)
-    
+
         yfile = prefix + '.y'
         yf = self.open(yfile, 'w')
 
         # get extended information in the bison-generated .tab.c file
-        yf.write("%token_table\n\n")
+        yf.write("%token-table\n\n")
 
         self.elidables = []
         self.collapsables = []
@@ -186,7 +200,7 @@ class biab(program):
             idents = dec[1]
 
             if dectype in ('%token', '%left', '%right',
-                                 '%nonassoc', '%start'):
+                           '%nonassoc', '%start'):
                 yf.write("%s" % (dectype,))
                 if hasattr(idents, 'kids'):
                     for i in idents:
@@ -207,10 +221,11 @@ class biab(program):
 
         nrule = 0
         self.actions = {}
-        
+
         for prod in p.productions:
             # skip over init actions
-            if prod == None: continue
+            if prod == None:
+                continue
             nt = prod[0]
             disjuncts = prod[1]
             yf.write(nt.value)
@@ -229,7 +244,7 @@ class biab(program):
                         yf.write(" %s" % (i.value,))
                 yf.write("\n")
             yf.write("\t;\n\n")
-        
+
         yf.close()
 
         # run bison
@@ -237,7 +252,7 @@ class biab(program):
             bison = 'bison -v'
         else:
             bison = 'bison'
-            
+
         if os.system(bison + ' ' + yfile) != 0:
             self.die("Problem running bison on `%s'!\n" % (yfile,))
 
@@ -254,12 +269,12 @@ class biab(program):
 
         if not self.NO_CLEAN:
             os.remove(tabfile)
-            
+
         # generate .py file with defines and tables and actions
 
         pyfile = prefix + '.py'
         pyf = self.open(pyfile, 'w')
-    
+
         pyf.write(p.prolog)
 
         pyf.write("""
@@ -291,12 +306,12 @@ class parser(biab.parse.Parser):
 
         def valify(l):
             return [v.value for v in l]
-        
+
         pyf.write("  yyelidables = %s\n\n" % (valify(self.elidables),))
         pyf.write("  yycollapsables = %s\n\n" % (valify(self.collapsables,)))
         pyf.write("  yyflattenables = %s\n\n" % (valify(self.flattenables,)))
         pyf.write("  yyphantoms = %s\n\n" % (valify(self.phantoms,)))
-        
+
         ks = list(self.actions.keys())
         ks.sort()
         for k in ks:
@@ -316,10 +331,13 @@ class parser(biab.parse.Parser):
             self.die("Problem running bison!  I quit!\n")
         m = re.compile(r'\s+(\S+)\D*$').search(output)
         if not m:
-            self.die("Problem parsing bison version from: %s\nI quit!" % (output,))
+            self.die("Problem parsing bison version from: %s\nI quit!" %
+                     (output,))
         v = m.group(1)
         if v not in recommended:
-            self.carp("Your bison version is %s; one of (%s) is recommended\n..continuing anyway.\n" % (v, stringtuple2text(recommended)))
+            self.carp("Your bison version is %s; one of (%s) is recommended\n..continuing anyway.\n" % (
+                v, stringtuple2text(recommended)))
+
 
 if __name__ == '__main__':
     p = biab()

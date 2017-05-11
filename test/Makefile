@@ -1,8 +1,10 @@
+BIAB=$(shell pyenv which biab)
+
 all:
-	biab ANSI-C-grammar.bb
-	biab desk.bb
-	biab desk1.bb
-	biab meta.bb
+	$(BIAB) ANSI-C-grammar.bb
+	$(BIAB) desk.bb
+	$(BIAB) desk1.bb
+	$(BIAB) meta.bb
 
 clean:
 	rm -f *.py *.tab.c *.y *.output *~

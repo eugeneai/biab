@@ -20,7 +20,7 @@
 import sys, os, re, string
 
 # typical entities of interest
-# (some of these require the %token_table directive in bison 1.28)
+# (some of these require the %token-table directive in bison 1.28)
 DEFINES = ('YYFINAL', 'YYFLAG', 'YYNTBASE', 'YYNTOKENS', 'YYNNTS',
            'YYNRULES', 'YYNSTATES', 'YYMAXUTOK', 'YYLAST')
 

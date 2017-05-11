@@ -21,9 +21,10 @@ import sys as _sys
 from . import token as _token
 from . import ast as _ast
 
+
 class Parser:
     YYEOF = _token.token('$')
-    
+
     def D(self, s):
         if self.yydebug:
             _sys.stderr.write(s)
@@ -39,12 +40,12 @@ class Parser:
         self.yyline = 0
         self.yyn = 0
         # lookahead token as an internal (translated) token number
-        self.yychar1 = 0  
+        self.yychar1 = 0
         self.yychar = []  # Cause a token to be read.
         self.yyneed_tokenp = 0
-        self.yy_at_eof = 0 
+        self.yy_at_eof = 0
         self.yyerrorp = 0
-       
+
         # generate lexeme to token number map
         self.yylexeme = {}
         for i in range(len(self.yytname)):
@@ -57,50 +58,51 @@ class Parser:
         e = self.yyexpecting()
         if tok:
             _sys.stderr.write("\"%s\", line %d: %s at or before `%s'%s\n"
-                             % (self.yyfile, self.yyline, msg, tok, e))
+                              % (self.yyfile, self.yyline, msg, tok, e))
         else:
             _sys.stderr.write("\"%s\", line %d: %s%s\n"
-                             % (self.yyfile, self.yyline, msg, e)) 
+                              % (self.yyfile, self.yyline, msg, e))
         _sys.stderr.flush()
-        
+
     def yyparse(self):
         while self.yycont and not self.yyneed_tokenp:
             self.yycont = self.yycont()
 
     def yyexpecting(self, limit=5):
-      yyn = self.yypact[self.yystate]
+        yyn = self.yypact[self.yystate]
 
-      if yyn > self.YYFLAG and yyn < self.YYLAST:
-	  count = 0
-          # Start X at -yyn if nec to avoid negative indexes in yycheck.
-          r = list(range((yyn < 0 and -yyn or 0), self.YYNTOKENS - self.YYNNTS))
-          for x in r:
-              if self.yycheck[x + yyn] == x:
-                  count += 1
-          if count < 5:
-              msg = ';'
-              count = 0
-              for x in r:
-                  if self.yycheck[x + yyn] == x:
-                      msg += " %s `%s'" \
-                             % (((count == 0) and "expecting" or "or"),
-                                self.yytname[x])
-                      count += 1
-              return msg
-          else:
-              return ''
-          
+        if yyn > self.YYFLAG and yyn < self.YYLAST:
+            count = 0
+            # Start X at -yyn if nec to avoid negative indexes in yycheck.
+            r = list(range((yyn < 0 and -yyn or 0),
+                           self.YYNTOKENS - self.YYNNTS))
+            for x in r:
+                if self.yycheck[x + yyn] == x:
+                    count += 1
+            if count < 5:
+                msg = ';'
+                count = 0
+                for x in r:
+                    if self.yycheck[x + yyn] == x:
+                        msg += " %s `%s'" \
+                               % (((count == 0) and "expecting" or "or"),
+                                  self.yytname[x])
+                        count += 1
+                return msg
+            else:
+                return ''
+
     def yynewstate(self):
         # Push a new state, which is found in  yystate.
         # In all cases, when you get here, the value stack
         # has just been pushed. so pushing a state here evens the stacks.
-        
+
         self.yystates.append(self.yystate)
 
-#ifdef DEBUG
+# ifdef DEBUG
         self.D("Entering state %d\n" % (self.yystate,))
         self.D("state stack now: %s\n" % (self.yystates))
-#endif
+# endif
         return self.yybackup
 
     def yybackup(self):
@@ -110,41 +112,42 @@ class Parser:
         # First try to decide what to do without reference to lookahead token.
         self.yyn = self.yypact[self.yystate]
         if self.yyn == self.YYFLAG:
-#ifdef DEBUG
-            self.D("yybackup going to yydefault in state %d\n" % (self.yystate,))
-#endif
+            # ifdef DEBUG
+            self.D("yybackup going to yydefault in state %d\n" %
+                   (self.yystate,))
+# endif
             return self.yydefault
 
         # Not known => get a lookahead token if don't already have one.
 
-        # yychar is either empty or YYEOF or a valid token in external form. 
+        # yychar is either empty or YYEOF or a valid token in external form.
 
         if self.yychar == [] and not self.yy_at_eof:
-#ifdef DEBUG
+            # ifdef DEBUG
             self.D("Needing a token.\n")
-#endif
+# endif
             self.yyneed_tokenp = 1
 
         return self.yybackup1
-      
+
     def yybackup1(self):
         # self.yychar guaranteed to be non-empty unless at EOF
         if self.yy_at_eof:
             t = self.YYEOF
         else:
             t = self.yychar[0]
-        self.yychar1 = self.yylexeme[t.type] 
+        self.yychar1 = self.yylexeme[t.type]
         # note if the shifted token is eof
         if t == self.YYEOF:
             self.yy_at_eof = 1
         else:
             self.yyline = t.line
 
-#ifdef DEBUG
+# ifdef DEBUG
         self.D("yybackup1: lookahead is %s(%d)\n" % (t, self.yychar1))
-#endif
+# endif
 
-        self.yyn += self.yychar1;
+        self.yyn += self.yychar1
 
         if self.yyn < 0 \
            or self.yyn > self.YYLAST \
@@ -161,7 +164,7 @@ class Parser:
         #   0, or most negative number => error.
 
         if self.yyn < 0:
-            if self.yyn == self.YYFLAG: 
+            if self.yyn == self.YYFLAG:
                 self.yyerrorp = 1
                 self.yyerror("syntax error", t)
                 # turn off further processing
@@ -177,9 +180,9 @@ class Parser:
 
         if self.yyn == self.YYFINAL:
             # report accept here by..
-#ifdef DEBUG
+            # ifdef DEBUG
             self.D("accept!\n")
-#endif
+# endif
             return 0
 
         # Shift the lookahead token.
@@ -187,23 +190,23 @@ class Parser:
             del self.yychar[0]
         self.yychar1 = self.yylexeme[t.type]
 
-#ifdef DEBUG
+# ifdef DEBUG
         self.D("Shifting token %s (%d), " % (t, self.yychar1))
-#endif
+# endif
 
         self.yyvals.append(t)
 
-        self.yystate = self.yyn;
+        self.yystate = self.yyn
 
         return self.yynewstate
 
     def yydefault(self):
         # Do the default action for the current state.
-        self.yyn = self.yydefact[self.yystate];
+        self.yyn = self.yydefact[self.yystate]
         if self.yyn == 0:
-#ifdef DEBUG
+            # ifdef DEBUG
             self.D("parse error!\n")
-#endif
+# endif
             if self.yy_at_eof:
                 t = self.YYEOF
             elif self.yychar:
@@ -216,27 +219,28 @@ class Parser:
             return None
         else:
             return self.yyreduce
-    
+
     def yyreduce(self):
         # Do a reduction.  yyn is the number of a rule to reduce with.
 
-        yylen = self.yyr2[self.yyn];
+        yylen = self.yyr2[self.yyn]
 
-#ifdef DEBUG
-        self.D("Reducing via rule %d (line %d), " % (self.yyn, self.yyrline[self.yyn]))
-#endif
+# ifdef DEBUG
+        self.D("Reducing via rule %d (line %d), " %
+               (self.yyn, self.yyrline[self.yyn]))
+# endif
 
-#ifdef DEBUG
+# ifdef DEBUG
         # Print the symbols being reduced, and their result.
         i = self.yyprhs[self.yyn]
         while self.yyrhs[i] > 0:
             self.D("%s " % (self.yytname[self.yyrhs[i]],))
             i += 1
         self.D(" -> %s\n" % self.yytname[self.yyr1[self.yyn]])
-#endif
+# endif
 
-        #print 'r%d.0:' % (self.yyn,), self.yyvals
-        
+        # print 'r%d.0:' % (self.yyn,), self.yyvals
+
         # call semantic action for rule yyn here
         # get returned value in rval
         act = self.yyactions.get(self.yyn)
@@ -253,16 +257,16 @@ class Parser:
                 kids = []
             else:
                 kids = self.yyvals[-yylen:]
-            kids = list(filter(lambda k, self=self: \
-                          (not hasattr(k, 'type')
-                           or k.type not in self.yyelidables),
-                          kids))
+            kids = list(filter(lambda k, self=self:
+                               (not hasattr(k, 'type')
+                                or k.type not in self.yyelidables),
+                               kids))
 
             if len(kids) == 1 \
                and hasattr(kids[0], 'type') \
                and kids[0].type in self.yyphantoms:
                 kids = kids[0].kids
-                
+
             if nt in self.yyflattenables:
                 kids1 = []
                 for k in kids:
@@ -271,7 +275,7 @@ class Parser:
                     else:
                         kids1.append(k)
                 kids = kids1
-                
+
             if len(kids) == 1 \
                and (nt in self.yyelidables or nt in self.yycollapsables):
                 rval = kids[0]
@@ -283,12 +287,12 @@ class Parser:
             self.yystates = self.yystates[:-yylen]
             self.yyvals = self.yyvals[:-yylen]
 
-        #print 'r%d.1:' % (self.yyn,), self.yyvals
-        #print self.yychar
-        
-#ifdef DEBUG
+        # print 'r%d.1:' % (self.yyn,), self.yyvals
+        # print self.yychar
+
+# ifdef DEBUG
         self.D("state stack now: %s\n" % (self.yystates))
-#endif
+# endif
 
         self.yyvals.append(rval)
 
@@ -300,42 +304,41 @@ class Parser:
         self.yyn = self.yyr1[self.yyn]
 
         self.yystate = \
-                     self.yypgoto[self.yyn - self.YYNTBASE] + self.yystates[-1]
-    
-        if (self.yystate >= 0 \
-            and self.yystate <= self.YYLAST \
-            and self.yycheck[self.yystate] == self.yystates[-1]):
+            self.yypgoto[self.yyn - self.YYNTBASE] + self.yystates[-1]
+
+        if (self.yystate >= 0
+            and self.yystate <= self.YYLAST
+                and self.yycheck[self.yystate] == self.yystates[-1]):
             self.yystate = self.yytable[self.yystate]
         else:
-            self.yystate = self.yydefgoto[self.yyn - self.YYNTBASE];
+            self.yystate = self.yydefgoto[self.yyn - self.YYNTBASE]
 
         return self.yynewstate
 
     def parse_token(self, t):
         self.yychar.append(t)
-#ifdef DEBUG
+# ifdef DEBUG
         self.D("Next token is %s (%d)\n" % (t, self.yylexeme[t.type]))
-#endif
+# endif
         self.yyneed_tokenp = 0
         self.yyparse()
-        
+
     def parse_tokens(self, *ts):
         if ts:
             self.yychar += list(ts)
             self.yyneed_tokenp = 0
             self.yyparse()
-        
+
     def parse_eof(self):
         self.yychar.append(self.YYEOF)
         self.yyneed_tokenp = 0
-#ifdef DEBUG
+# ifdef DEBUG
         self.D("Now at end of input.\n")
-#endif
+# endif
         self.yyparse()
-        
+
     def acceptp(self):
         return not self.yycont
 
     def errorp(self):
         return self.yyerrorp
-    
