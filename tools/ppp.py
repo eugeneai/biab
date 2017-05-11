@@ -40,7 +40,7 @@ while 1:
         break
     m = ifdef.match(l)
     if m:
-        if defined.has_key(m.group(1)):
+        if m.group(1) in defined:
             stack.append(1)
         else:
             stack.append(0)

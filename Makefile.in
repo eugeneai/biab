@@ -12,6 +12,9 @@ bindir = @bindir@
 all:
 	cd biab; make
 
+develop: all
+	$(PYTHON) setup.py develop
+
 install: all
 	$(PYTHON) setup.py install --optimize=2
 	$(INSTALL_SCRIPT) biab.sh $(bindir)/biab
@@ -27,7 +30,7 @@ clean:
 distclean: clean
 	rm -f config.cache config.log config.h config.status Makefile
 	rm -f setup.py
-        
+
 maintainer-clean: distclean
 	rm -f configure aclocal.m4
 	rm -f libtool ltmain.sh config.guess config.sub ltconfig
@@ -62,3 +65,7 @@ snap:
 
 upload: snap
 	scp $(SNAPNAME).tar.gz est@taz3.hyperreal.org:$(SNAPNAME).tar.gz
+
+conf-pyenv:
+	./autobuild.sh
+	./configure --prefix=`pyenv prefix`
