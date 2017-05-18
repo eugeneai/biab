@@ -18,6 +18,7 @@
 #
 
 import os
+import os.path
 import subprocess
 import re
 import getopt
@@ -26,7 +27,7 @@ from . import nosib, lex, meta
 
 from .token import token
 
-from .program import *
+from .program import program
 
 
 class biab_lexer(lex.luthor):
@@ -125,9 +126,18 @@ class biab(program):
     USAGE = "Usage: biab <file>.bb\n"
 
     def __init__(self):
-        program.__init__(self)
+        super(biab, self).__init__()
         self.NO_CLEAN = 0
         self.DIAGNOSE = 0
+
+    def process(self, filename):
+        base, ext = os.path.split(filename)
+        dir = os.path.dirname(filename)
+        pwd = os.getcwd()
+        print("--> cdir - ", dir, pwd)
+        os.chdir(dir)
+        self.main([filename])
+        os.chdir(pwd)
 
     def main(self, args):
         opts, args = getopt.getopt(args, "", [
@@ -222,7 +232,7 @@ class biab(program):
 
         for prod in p.productions:
             # skip over init actions
-            if prod == None:
+            if prod is None:
                 continue
             nt = prod[0]
             disjuncts = prod[1]
