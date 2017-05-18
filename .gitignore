@@ -104,9 +104,10 @@ ENV/
 /autom4*.cache
 /biab.sh
 /biab/parse*.py
-Makefile
-/test/desk*.py
+/Makefile
+/tests/desk*.py
 /config.status
 /setup.py
 /m4
-test/*.py
+!/tests/test*.py
+tests/*.py
