@@ -12,15 +12,20 @@ def example(filename):
     return os.path.abspath(os.path.join(DIR, filename))
 
 
+def bcompile(modulename):
+    ex = modulename + ".bb"
+    ex = example(ex)
+    biab.process(ex)
+    if DIR not in sys.path:
+        sys.path.append(DIR)
+    return importlib.import_module(modulename)
+
+
 class TestBasic(object):
 
     def setUp(self):
         pass
 
     def test_C(self):
-        ex1 = example("ANSI-C-grammar.bb")
-        biab.process(ex1)
-        if not DIR in sys.path:
-            sys.path.append(DIR)
-        mod = importlib.import_module("ANSI-C-grammar")
-        assert mod
+        rc = bcompile("ANSI-C-grammar")
+        assert rc
