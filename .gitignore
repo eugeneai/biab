@@ -105,9 +105,11 @@ ENV/
 /biab.sh
 /biab/parse*.py
 /Makefile
-/tests/desk*.py
+!test*.py
 /config.status
 /setup.py
 /m4
-!/tests/test*.py
-tests/*.py
+/tests/ANSI-C-grammar.py
+/tests/desk1.py
+/tests/desk.py
+/tests/meta.py
