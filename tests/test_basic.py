@@ -27,5 +27,13 @@ class TestBasic(object):
         pass
 
     def test_C(self):
-        rc = bcompile("ANSI-C-grammar")
-        assert rc
+        assert bcompile("ANSI-C-grammar")
+
+    def test_desk(self):
+        assert bcompile("desk")
+
+    def test_desk1(self):
+        assert bcompile("desk1")
+
+    def test_meta(self):
+        assert bcompile("meta")

@@ -51,26 +51,32 @@ import biab.lex, biab.token
 class lexer(biab.lex.luthor):
     CHAROPS = "+-*/()="
     NEWLINEP = 1
-    
+
     PATTERNS = {
         'NUMBER' : biab.lex.luthor.NUMBER,
         'IDENTIFIER' : biab.lex.luthor.IDENTIFIER,
         }
-        
+
     def __init__(self, cb, infile="<unknown>"):
         biab.lex.luthor.__init__(self, cb, infile)
 
-lex = lexer(lambda l, v, line, col:
-             p.parse_token(biab.token.token(l, v, line, col)),
-            '<stdin>')
+def main():
 
-while 1:
-    l = sys.stdin.readline()
-    if not l: break
-    # we create a new parser for every line!
-    # this permits a crude form of error recovery
-    p = parser('<stdin>')
-    try: lex.lexline(l)
-    except DeskError: pass
+    lex = lexer(lambda l, v, line, col:
+                 p.parse_token(biab.token.token(l, v, line, col)),
+                '<stdin>')
 
-sys.exit(0)
+    while 1:
+        l = sys.stdin.readline()
+        if not l: break
+        # we create a new parser for every line!
+        # this permits a crude form of error recovery
+        p = parser('<stdin>')
+        try: lex.lexline(l)
+        except DeskError: pass
+
+    sys.exit(0)
+
+if __name__=="__main__":
+    main()
+
