@@ -30,15 +30,16 @@ from . import scanopt as _scanopt
 import profile as _profile
 from . import prof as _prof
 
+
 class _myprofile(_profile.Profile):
     """
     A variant of profile.Profile whose run() method takes global and
     local dict arguments.
     """
-    
+
     def __init__(self):
         _profile.Profile.__init__(self)
-        
+
     def run(self, cmd, globals, locals):
         """
         run(cmd, globals, locals)
@@ -46,6 +47,7 @@ class _myprofile(_profile.Profile):
         local dict arguments as well.
         """
         return self.runctx(cmd, globals, locals)
+
 
 class _Exit(Exception):
     def __init__(self, rc):
@@ -55,6 +57,7 @@ class _Exit(Exception):
     def __int__(self):
         return self.rc
 
+
 class program:
     def __init__(self):
         self.profilep = 0
@@ -62,7 +65,7 @@ class program:
         self.debug = 0
         self.verbosity = 1
         self.stderr = _sys.stderr
-        
+
     def carp(self, msg):
         self.stderr.write(msg)
         self.stderr.flush()
@@ -77,38 +80,43 @@ class program:
     def die(self, msg):
         self.stderr.write(msg)
         self.stderr.flush()
-        
+
         self.exit(1)
 
     def open(self, file, mode='r'):
         try:
             return open(file, mode)
         except IOError as e:
-            self.die("Problem %s `%s': %s\n" \
+            self.die("Problem %s `%s': %s\n"
                      % ((mode == 'r' and 'reading' or 'writing'),
                         file, e))
-    
+
     def run(self, args=None):
-        if args == None:
+        if args is None:
             args = _sys.argv
         self.name = args[0]
         # print args
-        
+
         opts, args = _scanopt.scanopt(_sys.argv[1:],
-                                    [
+                                      [
             'prof',
             'profile',
             'debug=',
             'verbosity=',
             'quiet=',
-            ])
+        ])
 
         for opt, val in opts:
-            if opt == '--profile': self.profilep = 1
-            if opt == '--prof': self.profp = 1
-            elif opt == '--debug': self.debug = int(val)
-            elif opt == '--verbosity': self.verbosity = int(val)
-            elif opt == '--quiet': self.verbosity = 0
+            if opt == '--profile':
+                self.profilep = 1
+            if opt == '--prof':
+                self.profp = 1
+            elif opt == '--debug':
+                self.debug = int(val)
+            elif opt == '--verbosity':
+                self.verbosity = int(val)
+            elif opt == '--quiet':
+                self.verbosity = 0
 
         # this is a cell instead of a simple variable so we can get a
         # value in it during profiling (the dict returned by locals
@@ -135,10 +143,11 @@ class program:
         except _Exit as e:
             rc[0] = int(e)
 
-        if rc[0] == None:
+        if rc[0] is None:
             rc[0] = 0
 
         _sys.exit(rc[0])
+
 
 if __name__ == '__main__':
     class myprog(program):
@@ -149,6 +158,6 @@ if __name__ == '__main__':
         def main(self, args):
             print(args)
             return 23
-        
+
     p = myprog()
     p.run()
