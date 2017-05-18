@@ -30,7 +30,7 @@ class TestBasic(object):
         assert bcompile("ANSI-C-grammar")
 
     def test_desk(self):
-        assert bcompile("desk")
+        mod = bcompile("desk")
 
     def test_desk1(self):
         assert bcompile("desk1")
